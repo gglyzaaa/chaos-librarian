@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chaos Librarian | Register</title>
+    <style>
+        body { background-color: #0b0014; color: #d1a3ff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .auth-box { background: #1b1024; padding: 40px; border-radius: 15px; border: 2px solid #52057b; box-shadow: 0 0 30px rgba(137, 44, 220, 0.2); text-align: center; width: 350px; }
+        h2 { color: #bc6ff1; text-shadow: 0 0 10px #892cdc; margin-bottom: 20px; }
+        form p { text-align: left; font-size: 0.8rem; color: #a275cc; }
+        input { width: 100%; padding: 10px; margin: 5px 0 15px 0; background: #0b0014; border: 1px solid #892cdc; color: white; border-radius: 5px; box-sizing: border-box; }
+        .btn { width: 100%; background: #52057b; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn:hover { background: #892cdc; transform: scale(1.02); }
+        .link { display: block; margin-top: 20px; color: #bc6ff1; text-decoration: none; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="auth-box">
+        <h2>NEW LIBRARIAN</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }} <button type="submit" class="btn">CREATE ACCOUNT</button>
+        </form>
+        <a href="{% url 'login' %}" class="link">Already have an account? Login</a>
+    </div>
+</body>
+</html>

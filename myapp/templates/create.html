@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Summoning Chamber</title>
+    <style>
+        body { 
+            background-color: #0b0014; 
+            color: #d1a3ff; 
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .ritual-box {
+            background: #1b1024;
+            padding: 40px;
+            border-radius: 15px;
+            border: 2px solid #52057b;
+            box-shadow: 0 0 40px rgba(137, 44, 220, 0.2);
+            text-align: center;
+            width: 350px;
+        }
+        h2 { color: #bc6ff1; text-shadow: 0 0 10px #892cdc; }
+        input[type="text"] {
+            width: 90%;
+            padding: 12px;
+            margin: 20px 0;
+            background: #0b0014;
+            border: 1px solid #892cdc;
+            color: white;
+            border-radius: 5px;
+            outline: none;
+        }
+        input[type="text"]:focus { border-color: #bc6ff1; box-shadow: 0 0 10px #bc6ff1; }
+        button {
+            background: #52057b;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover { background: #892cdc; transform: scale(1.05); }
+        .back-link { display: block; margin-top: 20px; color: #664d7d; text-decoration: none; font-size: 0.8rem; }
+        .back-link:hover { color: #bc6ff1; }
+    </style>
+</head>
+<body>
+    <div class="ritual-box">
+        <h2>SUMMONING RITUAL</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <p>Enter the true name of the artifact:</p>
+            <input type="text" name="artifact_name" placeholder="Artifact Name..." required>
+            <button type="submit">BEGIN SUMMON</button>
+        </form>
+        <a href="{% url 'home' %}" class="back-link">Return to Library</a>
+    </div>
+</body>
+</html>

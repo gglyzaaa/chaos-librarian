@@ -1,0 +1,11 @@
+<body style="background: #0b0014; color: #d1a3ff; font-family: sans-serif; text-align: center; padding-top: 100px;">
+    <div style="background: #1b1024; display: inline-block; padding: 40px; border-radius: 15px; border: 1px solid #52057b;">
+        <h2 style="color: #bc6ff1;">LIBRARIAN LOGIN</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" style="background: #52057b; color: white; border: none; padding: 10px 20px; cursor: pointer;">Enter</button>
+        </form>
+        <p>New Librarian? <a href="{% url 'signup' %}" style="color: #bc6ff1;">Create Account</a></p>
+    </div>
+</body>
