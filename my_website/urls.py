@@ -20,12 +20,14 @@ from myapp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.library_view, name='home'),
-    path('summon/', views.create_artifact, name='create'),
-    path('signup/', views.signup_view, name='signup'),
-    path('login/', views.login_view, name='login'),
+    path('', views.library_view, name='home'),         # Points to your main library dashboard
+    path('login/', views.login_view, name='login'),    # Points to our tabbed auth page
+    path('signup/', views.signup_view, name='signup'), # Redirects safely to login tab
     path('logout/', views.logout_view, name='logout'),
-    path('update/<int:art_id>/', views.update_artifact, name='update'),
-    path('delete/<int:art_id>/', views.delete_artifact, name='delete'),
-    path('signup/', views.signup_view, name='signup'),
+    
+    # Changed name from 'create_artifact' to 'create' to match your library.html template layout!
+    path('create/', views.create_artifact, name='create'),
+    
+    path('update/<int:art_id>/', views.update_artifact, name='update_artifact'),
+    path('delete/<int:art_id>/', views.delete_artifact, name='delete_artifact'),
 ]

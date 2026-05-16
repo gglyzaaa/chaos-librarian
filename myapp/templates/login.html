@@ -1,11 +1,338 @@
-<body style="background: #0b0014; color: #d1a3ff; font-family: sans-serif; text-align: center; padding-top: 100px;">
-    <div style="background: #1b1024; display: inline-block; padding: 40px; border-radius: 15px; border: 1px solid #52057b;">
-        <h2 style="color: #bc6ff1;">LIBRARIAN LOGIN</h2>
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" style="background: #52057b; color: white; border: none; padding: 10px 20px; cursor: pointer;">Enter</button>
-        </form>
-        <p>New Librarian? <a href="{% url 'signup' %}" style="color: #bc6ff1;">Create Account</a></p>
+{% extends 'base.html' %}
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-lg text-white" style="width: 100%; max-width: 450px; border-radius: 12px; background-color: #111827; border: 1px solid #1F2937;">
+        
+        <div class="d-flex border-bottom text-center" style="border-top-left-radius: 12px; border-top-right-radius: 12px; background-color: #0F172A; border-color: #1F2937 !important;">
+            <div id="login-tab" class="w-50 py-3 fw-bold active-tab" style="cursor: pointer;" onclick="switchTab('login')">
+                Log In
+            </div>
+            <div id="register-tab" class="w-50 py-3 fw-bold text-muted-custom" style="cursor: pointer;" onclick="switchTab('register')">
+                Create Account
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-danger py-2 text-center small animate-fade" role="alert" style="background-color: #311517; color: #FCA5A5; border: 1px solid #7F1D1D;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <div id="login-form-panel">
+                <h3 class="text-center mb-4" style="color: #06B6D4; font-weight: 700; letter-spacing: 0.5px;">Welcome Back</h3>
+                <form method="POST" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label text-secondary-custom small fw-bold text-uppercase">Username</label>
+                        <input type="text" name="username" class="form-control tech-input" required placeholder="Enter username">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary-custom small fw-bold text-uppercase">Password</label>
+                        <input type="password" name="password" class="form-control tech-input" required placeholder="Enter password">
+                    </div>
+                    <button type="submit" name="submit_login" class="btn tech-btn w-100 mt-2">Sign In</button>
+                </form>
+            </div>
+
+            <div id="register-form-panel" style="display: none;">
+                <h3 class="text-center mb-4" style="color: #06B6D4; font-weight: 700; letter-spacing: 0.5px;">Register Account</h3>
+                <form method="POST" action="{% url 'login' %}" id="registerForm">
+                    {% csrf_token %}
+                    
+                    <div id="reg-step-1">
+                        <h5 class="mb-3 small fw-bold text-uppercase" style="color: #38BDF8;">Step 1: Profile Info</h5>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary-custom small fw-bold text-uppercase">Full Name</label>
+                            <input type="text" id="reg_name" name="reg_name" class="form-control tech-input" placeholder="Enter your full name" value="{{ typed_name|default:'' }}" required>
+                            <div id="name-warning" class="fw-bold small mt-1 animate-fade" style="color: #EF4444; display: none;">
+                                Please enter your full name before continuing.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label d-block text-secondary-custom small fw-bold text-uppercase">Select Your Role</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input tech-radio" type="radio" name="reg_role" id="roleStudent" value="student" {% if typed_role != "instructor" %}checked{% endif %}>
+                                <label class="form-check-label text-light" for="roleStudent">Student</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input tech-radio" type="radio" name="reg_role" id="roleInstructor" value="instructor" {% if typed_role == "instructor" %}checked{% endif %}>
+                                <label class="form-check-label text-light" for="roleInstructor">Instructor</label>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="button" class="btn tech-btn px-4" onclick="switchRegStep(2)">Next &rarr;</button>
+                        </div>
+                    </div>
+
+                    <div id="reg-step-2" style="display: none;">
+                        <h5 class="mb-3 small fw-bold text-uppercase" style="color: #38BDF8;">Step 2: Credentials</h5>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary-custom small fw-bold text-uppercase">Username</label>
+                            <input type="text" id="reg_username" name="reg_username" class="form-control tech-input {% if username_taken %}tech-invalid-border{% endif %}" placeholder="Choose a username" value="{{ typed_username|default:'' }}" required>
+                            <div id="username-warning" class="fw-bold small mt-1 animate-fade" style="color: #EF4444; display: none;">
+                                Please choose a valid system username.
+                            </div>
+                            {% if username_taken %}
+                                <div class="fw-bold small mt-1 animate-fade" style="color: #EF4444;">
+                                    This username is already taken, please create a new one.
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary-custom small fw-bold text-uppercase">Email Address</label>
+                            <input type="email" id="reg_email" name="reg_email" class="form-control tech-input" placeholder="yourname@example.com" value="{{ typed_email|default:'' }}" required>
+                            <div id="email-warning" class="fw-bold small mt-1 animate-fade" style="color: #EF4444; display: none;">
+                                Please enter a valid email address before continuing.
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-secondary px-4 text-white" style="background-color: #374151; border: none;" onclick="switchRegStep(1)">&larr; Back</button>
+                            <button type="button" class="btn tech-btn px-4" onclick="switchRegStep(3)">Next &rarr;</button>
+                        </div>
+                    </div>
+
+                    <div id="reg-step-3" style="display: none;">
+                        <h5 class="mb-3 small fw-bold text-uppercase" style="color: #38BDF8;">Step 3: Security Passcode</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-secondary-custom small fw-bold text-uppercase">Create Password</label>
+                            <input type="password" id="reg_password" name="reg_password" class="form-control tech-input" placeholder="Enter password" required oninput="validatePasswordCriteria()">
+                            
+                            <div class="mt-2 p-2 rounded" style="background-color: #0F172A; border: 1px solid #1F2937;">
+                                <div id="rule-length" class="small text-danger fw-bold">&times; Minimum 6 characters</div>
+                                <div id="rule-number" class="small text-danger fw-bold">&times; Contains at least 1 number</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-secondary-custom small fw-bold text-uppercase">Confirm Password</label>
+                            <input type="password" id="reg_confirm_password" class="form-control tech-input" placeholder="Re-enter password to confirm" required oninput="validatePasswordCriteria()">
+                            <div id="password-match-warning" class="fw-bold small mt-1 animate-fade" style="color: #EF4444; display: none;">
+                                Passwords do not match. Please verify string values.
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-secondary px-4 text-white" style="background-color: #374151; border: none;" onclick="switchRegStep(2)">&larr; Back</button>
+                            <button type="button" id="submit-reg-btn" class="btn tech-btn px-4" onclick="validateAndSubmitRegistration()" disabled style="opacity: 0.5; cursor: not-allowed;">Create Account</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
     </div>
-</body>
+</div>
+
+<style>
+    .tech-input {
+        background-color: #1F2937 !important;
+        border: 1px solid #374151 !important;
+        color: #FFFFFF !important;
+    }
+    .tech-input:focus {
+        border-color: #06B6D4 !important;
+        box-shadow: 0 0 0 0.25rem rgba(6, 182, 212, 0.2) !important;
+    }
+    .tech-input::placeholder {
+        color: #6B7280 !important;
+    }
+    .active-tab {
+        color: #06B6D4 !important;
+        border-bottom: 3px solid #06B6D4 !important;
+        background-color: #111827 !important;
+    }
+    .text-muted-custom {
+        color: #4B5563 !important;
+    }
+    .text-secondary-custom {
+        color: #9CA3AF !important;
+    }
+    .tech-btn {
+        background-color: #06B6D4 !important;
+        border: none !important;
+        color: #090D16 !important;
+        font-weight: 700 !important;
+    }
+    .tech-btn:hover:not([disabled]) {
+        background-color: #22D3EE !important;
+        box-shadow: 0 0 12px rgba(6, 182, 212, 0.4) !important;
+        color: #090D16 !important;
+    }
+    .tech-radio:checked {
+        background-color: #06B6D4 !important;
+        border-color: #06B6D4 !important;
+    }
+    .tech-invalid-border {
+        border-color: #EF4444 !important;
+        box-shadow: 0 0 0 0.25rem rgba(239, 68, 68, 0.15) !important;
+    }
+</style>
+
+<script>
+    function switchTab(target) {
+        const loginTab = document.getElementById('login-tab');
+        const registerTab = document.getElementById('register-tab');
+        const loginPanel = document.getElementById('login-form-panel');
+        const registerPanel = document.getElementById('register-form-panel');
+
+        if (target === 'login') {
+            loginPanel.style.display = 'block';
+            registerPanel.style.display = 'none';
+            loginTab.classList.add('active-tab');
+            loginTab.classList.remove('text-muted-custom');
+            registerTab.classList.remove('active-tab');
+            registerTab.classList.add('text-muted-custom');
+        } else {
+            loginPanel.style.display = 'none';
+            registerPanel.style.display = 'block';
+            registerTab.classList.add('active-tab');
+            registerTab.classList.remove('text-muted-custom');
+            loginTab.classList.remove('active-tab');
+            loginTab.classList.add('text-muted-custom');
+            switchRegStep(1);
+        }
+    }
+
+    function switchRegStep(step) {
+        const step1 = document.getElementById('reg-step-1');
+        const step2 = document.getElementById('reg-step-2');
+        const step3 = document.getElementById('reg-step-3');
+        
+        const nameInput = document.getElementById('reg_name');
+        const nameWarning = document.getElementById('name-warning');
+        
+        const usernameInput = document.getElementById('reg_username');
+        const usernameWarning = document.getElementById('username-warning');
+        const emailInput = document.getElementById('reg_email');
+        const emailWarning = document.getElementById('email-warning');
+
+        if (step === 1) {
+            step1.style.display = 'block';
+            step2.style.display = 'none';
+            step3.style.display = 'none';
+        } 
+        else if (step === 2) {
+            // If advancing from step 1 to step 2, validate Name
+            if (!nameInput.value.trim()) {
+                nameInput.classList.add('tech-invalid-border');
+                nameWarning.style.display = 'block';
+                nameInput.focus();
+                return; 
+            }
+            nameInput.classList.remove('tech-invalid-border');
+            nameWarning.style.display = 'none';
+            
+            step1.style.display = 'none';
+            step2.style.display = 'block';
+            step3.style.display = 'none';
+        } 
+        else if (step === 3) {
+            // If advancing from step 2 to step 3, validate Username & Email
+            if (!usernameInput.value.trim()) {
+                usernameInput.classList.add('tech-invalid-border');
+                usernameWarning.style.display = 'block';
+                usernameInput.focus();
+                return;
+            }
+            usernameInput.classList.remove('tech-invalid-border');
+            usernameWarning.style.display = 'none';
+
+            if (!emailInput.value.trim() || !emailInput.checkValidity()) {
+                emailInput.classList.add('tech-invalid-border');
+                emailWarning.style.display = 'block';
+                emailInput.focus();
+                return;
+            }
+            emailInput.classList.remove('tech-invalid-border');
+            emailWarning.style.display = 'none';
+
+            step1.style.display = 'none';
+            step2.style.display = 'none';
+            step3.style.display = 'block';
+            validatePasswordCriteria(); // Run checks instantly upon opening
+        }
+    }
+
+    function validatePasswordCriteria() {
+        const passInput = document.getElementById('reg_password');
+        const confirmInput = document.getElementById('reg_confirm_password');
+        const submitBtn = document.getElementById('submit-reg-btn');
+        
+        const ruleLength = document.getElementById('rule-length');
+        const ruleNumber = document.getElementById('rule-number');
+        const matchWarning = document.getElementById('password-match-warning');
+
+        const val = passInput.value;
+        const confirmVal = confirmInput.value;
+
+        // Condition A: Minimum 6 Characters
+        let hasLength = val.length >= 6;
+        if (hasLength) {
+            ruleLength.innerHTML = '&#10003; Minimum 6 characters';
+            ruleLength.className = 'small text-success fw-bold';
+        } else {
+            ruleLength.innerHTML = '&times; Minimum 6 characters';
+            ruleLength.className = 'small text-danger fw-bold';
+        }
+
+        // Condition B: Contains a digit
+        let hasNumber = /\d/.test(val);
+        if (hasNumber) {
+            ruleNumber.innerHTML = '&#10003; Contains at least 1 number';
+            ruleNumber.className = 'small text-success fw-bold';
+        } else {
+            ruleNumber.innerHTML = '&times; Contains at least 1 number';
+            ruleNumber.className = 'small text-danger fw-bold';
+        }
+
+        // Condition C: Match passwords together
+        let passwordsMatch = val === confirmVal && confirmVal.length > 0;
+        if (confirmVal.length > 0 && val !== confirmVal) {
+            matchWarning.style.display = 'block';
+            confirmInput.classList.add('tech-invalid-border');
+        } else {
+            matchWarning.style.display = 'none';
+            confirmInput.classList.remove('tech-invalid-border');
+        }
+
+        // Unlock Action Submit Button only if all rules pass perfectly
+        if (hasLength && hasNumber && passwordsMatch) {
+            submitBtn.removeAttribute('disabled');
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+        } else {
+            submitBtn.setAttribute('disabled', 'true');
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+        }
+    }
+
+    function validateAndSubmitRegistration() {
+        const registerForm = document.getElementById('registerForm');
+
+        // Final appending layer for backend processing configurations
+        const hiddenSubmit = document.createElement('input');
+        hiddenSubmit.type = 'hidden';
+        hiddenSubmit.name = 'submit_register';
+        hiddenSubmit.value = 'true';
+        registerForm.appendChild(hiddenSubmit);
+
+        registerForm.submit();
+    }
+
+    // Keep state focus layouts clean upon refresh handling loops
+    const urlParams = new URLSearchParams(window.location.search);
+    if ("{{ username_taken }}" === "True" || "{{ reg_error }}" === "True") {
+        switchTab('register');
+        switchRegStep(2);
+    } else if (urlParams.get('tab') === 'register') {
+        switchTab('register');
+    }
+</script>
+{% endblock %}

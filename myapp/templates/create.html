@@ -1,64 +1,54 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Summoning Chamber</title>
-    <style>
-        body { 
-            background-color: #0b0014; 
-            color: #d1a3ff; 
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .ritual-box {
-            background: #1b1024;
-            padding: 40px;
-            border-radius: 15px;
-            border: 2px solid #52057b;
-            box-shadow: 0 0 40px rgba(137, 44, 220, 0.2);
-            text-align: center;
-            width: 350px;
-        }
-        h2 { color: #bc6ff1; text-shadow: 0 0 10px #892cdc; }
-        input[type="text"] {
-            width: 90%;
-            padding: 12px;
-            margin: 20px 0;
-            background: #0b0014;
-            border: 1px solid #892cdc;
-            color: white;
-            border-radius: 5px;
-            outline: none;
-        }
-        input[type="text"]:focus { border-color: #bc6ff1; box-shadow: 0 0 10px #bc6ff1; }
-        button {
-            background: #52057b;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-        button:hover { background: #892cdc; transform: scale(1.05); }
-        .back-link { display: block; margin-top: 20px; color: #664d7d; text-decoration: none; font-size: 0.8rem; }
-        .back-link:hover { color: #bc6ff1; }
-    </style>
-</head>
-<body>
-    <div class="ritual-box">
-        <h2>SUMMONING RITUAL</h2>
-        <form method="POST">
-            {% csrf_token %}
-            <p>Enter the true name of the artifact:</p>
-            <input type="text" name="artifact_name" placeholder="Artifact Name..." required>
-            <button type="submit">BEGIN SUMMON</button>
-        </form>
-        <a href="{% url 'home' %}" class="back-link">Return to Library</a>
+{% extends 'base.html' %}
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 75vh;">
+    <div class="card shadow-lg text-white" style="width: 100%; max-width: 500px; border-radius: 12px; background-color: #111827; border: 1px solid #1F2937;">
+        <div class="card-header py-3 text-center" style="background-color: #0F172A; border-bottom: 1px solid #1F2937; border-top-left-radius: 12px; border-top-right-radius: 12px;">
+            <h4 class="mb-0" style="color: #06B6D4; font-weight: 700;">Add new Artifact</h4>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST" action="">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label class="form-label text-secondary-custom small fw-bold text-uppercase">Artifact Name</label>
+                    <input type="text" name="artifact_name" class="form-control tech-input" required placeholder="Enter primary artifact designation">
+                    <div class="form-text text-muted" style="color: #6B7280 !important;">The system will automatically set a random power levels and rarity categories for your new artifact.</div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'home' %}" class="btn btn-secondary px-4 text-white" style="background-color: #374151; border: none;">Cancel</a>
+                    <button type="submit" class="btn tech-btn px-4">Save Artifact</button>
+                </div>
+            </form>
+        </div>
     </div>
-</body>
-</html>
+</div>
+
+<style>
+    .tech-input {
+        background-color: #1F2937 !important;
+        border: 1px solid #374151 !important;
+        color: #FFFFFF !important;
+    }
+    .tech-input:focus {
+        border-color: #06B6D4 !important;
+        box-shadow: 0 0 0 0.25rem rgba(6, 182, 212, 0.2) !important;
+    }
+    .tech-input::placeholder {
+        color: #6B7280 !important;
+    }
+    .text-secondary-custom {
+        color: #9CA3AF !important;
+    }
+    .tech-btn {
+        background-color: #06B6D4 !important;
+        border: none !important;
+        color: #090D16 !important;
+        font-weight: 700 !important;
+    }
+    .tech-btn:hover {
+        background-color: #22D3EE !important;
+        box-shadow: 0 0 12px rgba(6, 182, 212, 0.4) !important;
+        color: #090D16 !important;
+    }
+</style>
+{% endblock %}

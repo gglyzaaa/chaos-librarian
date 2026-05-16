@@ -1,69 +1,138 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Chaos Librarian | Inventory</title>
-    <style>
-        body { background-color: #0b0014; color: #d1a3ff; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 40px; }
-        h1 { color: #bc6ff1; text-shadow: 0 0 15px #892cdc; letter-spacing: 3px; margin-bottom: 10px; }
-        .search-box { margin: 20px 0; background: #1b1024; padding: 15px; border-radius: 8px; border: 1px solid #52057b; }
-        input { background: #0b0014; border: 1px solid #892cdc; color: white; padding: 10px; border-radius: 5px; outline: none; }
-        .btn { background: #52057b; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; border: 1px solid #892cdc; cursor: pointer; transition: 0.3s; font-weight: bold; }
-        .btn:hover { background: #892cdc; box-shadow: 0 0 15px #bc6ff1; }
-        table { width: 95%; border-collapse: collapse; background: #1b1024; border-radius: 10px; overflow: hidden; margin-top: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        th { background-color: #52057b; color: white; padding: 15px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
-        td { padding: 15px; text-align: center; border-bottom: 1px solid #2d1a3d; }
-        tr:hover { background-color: #2d1a3d; }
-        .action-link { text-decoration: none; font-weight: bold; margin: 0 8px; font-size: 0.9rem; }
-    </style>
-</head>
-<body>
-    <div style="width: 100%; text-align: right; padding-right: 20px;">
-    <span>Welcome, {{ user.username }}!</span>
-    <a href="{% url 'logout' %}" style="color: #ff4d4d; margin-left: 15px;">Logout</a>
-</div>
-    <h1>THE CHAOS LIBRARIAN</h1>
-    <p style="color: #892cdc; margin-bottom: 30px;">Guimaras State College Magical Archive</p>
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 1px solid #1F2937;">
+        <div>
+            <h2 class="mb-1" style="color: #06B6D4; font-weight: 700;">Artifact Collection</h2>
+            <p class="text-secondary mb-0 small text-uppercase fw-bold">View and Manage your saved Artifacts</p>
+        </div>
+        <a href="{% url 'create' %}" class="btn tech-btn px-4">+ Add New Artifact</a>
+    </div>
 
-    <div class="search-box">
-        <form method="GET" action="{% url 'home' %}">
-            <input type="number" name="search_id" placeholder="Enter ID to find...">
-            <button type="submit" class="btn">Find Artifact</button>
-            <a href="{% url 'home' %}" style="color: #bc6ff1; margin-left: 15px; text-decoration: none; font-size: 0.8rem;">Show All</a>
+    <div class="card p-3 mb-4" style="background-color: #111827; border: 1px solid #1F2937; border-radius: 10px;">
+        <form method="GET" action="{% url 'home' %}" class="row g-2 align-items-center">
+            <div class="col-md-9 col-sm-8">
+                <input type="text" name="search_id" class="form-control tech-input" placeholder="Search by Artifact ID..." value="{{ request.GET.search_id|default:'' }}">
+            </div>
+            <div class="col-md-3 col-sm-4 d-flex gap-2">
+                <button type="submit" class="btn tech-btn w-100">Search ID</button>
+                {% if request.GET.search_id %}
+                    <a href="{% url 'home' %}" class="btn btn-secondary text-white px-3" style="background-color: #374151; border: none;">Reset</a>
+                {% endif %}
+            </div>
         </form>
     </div>
 
-    <a href="{% url 'create' %}" class="btn">✦ SUMMON NEW ARTIFACT ✦</a>
+    <div class="card shadow-lg" style="background-color: #111827; border: 1px solid #1F2937; border-radius: 12px; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle" style="background-color: #111827;">
+                <thead style="background-color: #0F172A;">
+                    <tr style="border-bottom: 2px solid #1F2937; color: #9CA3AF;" class="text-uppercase small fw-bold">
+                        <th class="ps-4 py-3">System ID</th>
+                        <th class="py-3">Artifact Name</th>
+                        <th class="py-3">Rarity Classification</th>
+                        <th class="py-3">Power Rating</th>
+                        <th class="pe-4 py-3 text-end">Manage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for artifact in artifacts %}
+                    <tr style="border-bottom: 1px solid #1F2937;">
+                        <td class="ps-4 font-monospace text-info">#{{ artifact.id }}</td>
+                        <td class="fw-bold text-light">{{ artifact.name }}</td>
+                        <td>
+                            {% if artifact.rarity == "Mythical" %}
+                                <span class="badge px-3 py-2 text-uppercase" style="background-color: #7c4dff; color: #ffffff;">Mythical</span>
+                            {% elif artifact.rarity == "Legendary" %}
+                                <span class="badge px-3 py-2 text-uppercase" style="background-color: #D97706; color: #ffffff;">Legendary</span>
+                            {% elif artifact.rarity == "Rare" %}
+                                <span class="badge px-3 py-2 text-uppercase" style="background-color: #2563EB; color: #ffffff;">Rare</span>
+                            {% else %}
+                                <span class="badge px-3 py-2 text-uppercase" style="background-color: #4B5563; color: #E5E7EB;">Common</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold text-warning">{{ artifact.power }}</span>
+                                <div class="progress w-50" style="height: 6px; background-color: #1F2937;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ artifact.power }}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="pe-4 text-end">
+                            <a href="{% url 'update_artifact' artifact.id %}" class="btn btn-sm btn-outline-info me-2 px-3">Edit Options</a>
+                            
+                            <button type="button" class="btn btn-sm btn-outline-danger px-3" data-bs-toggle="modal" data-bs-target="#deleteModal{{ artifact.id }}">
+                                Remove
+                            </button>
+                        </td>
+                    </tr>
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Rarity</th>
-                <th>Power</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for art in artifacts %}
-            <tr>
-                <td style="color: #bc6ff1; font-family: monospace;">#{{ art.id }}</td>
-                <td style="color: #fff; font-weight: bold;">{{ art.name }}</td>
-                <td>
-                    <span style="color: {% if art.rarity == 'Legendary' %}#ffd700{% elif art.rarity == 'Mythical' %}#ff00ff{% else %}#d1a3ff{% endif %};">
-                        {{ art.rarity }}
-                    </span>
-                </td>
-                <td>{{ art.power }}</td>
-                <td>
-                    <a href="{% url 'update' art.id %}" class="action-link" style="color: #bc6ff1;">Edit</a>
-                    <a href="{% url 'delete' art.id %}" class="action-link" style="color: #ff4d4d;" onclick="return confirm('Exile this artifact forever?')">Remove</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="5" style="padding: 40px; color: #664d7d;">The archives are currently empty. No artifacts detected.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
+                    <div class="modal fade" id="deleteModal{{ artifact.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: #1A1D29; border: 1px solid #EF4444; border-radius: 12px;">
+            
+            <div class="modal-header" style="border-bottom: 1px solid #2D3748; background-color: #0F172A; border-top-left-radius: 11px; border-top-right-radius: 11px;">
+                <h5 class="modal-title fw-bold text-danger">Remove Artifact</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body text-start py-4">
+                <p class="text-white fs-5 mb-3 fw-bold">Are you sure you want to remove this artifact?</p>
+                
+                <div class="p-3 rounded font-monospace small" style="background-color: #0F1016; border: 1px solid #2D3748;">
+                    <span class="text-white">Artifact Name:</span> <span class="text-info fw-bold" style="color: #00FFFF !important;">{{ artifact.name }}</span> <br>
+                    <span class="text-white">System ID Tag:</span> <span class="text-info fw-bold" style="color: #00FFFF !important;">#{{ artifact.id }}</span>
+                </div>
+            </div>
+            
+            <div class="modal-footer" style="border-top: 1px solid #2D3748; background-color: #0F172A; border-bottom-left-radius: 11px; border-bottom-right-radius: 11px;">
+                <button type="button" class="btn btn-secondary px-4 text-white" data-bs-dismiss="modal" style="background-color: #3F4251; border: none;">Cancel</button>
+                <a href="{% url 'delete_artifact' artifact.id %}" class="btn btn-danger px-4 fw-bold" style="background-color: #EF4444;">Confirm</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-secondary">
+                            <div class="fs-4 mb-2">No Records Located</div>
+                            <span class="small">The database vault is empty or no artifact matching that system ID exists.</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Uniform Styling overrides */
+    .tech-input {
+        background-color: #1F2937 !important;
+        border: 1px solid #374151 !important;
+        color: #FFFFFF !important;
+    }
+    .tech-input:focus {
+        border-color: #06B6D4 !important;
+        box-shadow: 0 0 0 0.25rem rgba(6, 182, 212, 0.2) !important;
+    }
+    .tech-input::placeholder {
+        color: #6B7280 !important;
+    }
+    .tech-btn {
+        background-color: #06B6D4 !important;
+        border: none !important;
+        color: #090D16 !important;
+        font-weight: 700 !important;
+    }
+    .tech-btn:hover {
+        background-color: #22D3EE !important;
+        box-shadow: 0 0 12px rgba(6, 182, 212, 0.4) !important;
+        color: #090D16 !important;
+    }
+</style>
+{% endblock %}
