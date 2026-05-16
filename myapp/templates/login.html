@@ -218,7 +218,6 @@
             step3.style.display = 'none';
         } 
         else if (step === 2) {
-            // If advancing from step 1 to step 2, validate Name
             if (!nameInput.value.trim()) {
                 nameInput.classList.add('tech-invalid-border');
                 nameWarning.style.display = 'block';
@@ -233,15 +232,14 @@
             step3.style.display = 'none';
         } 
         else if (step === 3) {
-            // If advancing from step 2 to step 3, validate Username & Email
+            // Local Validation checks
             if (!usernameInput.value.trim()) {
                 usernameInput.classList.add('tech-invalid-border');
+                usernameWarning.textContent = "Please choose a valid system username.";
                 usernameWarning.style.display = 'block';
                 usernameInput.focus();
                 return;
             }
-            usernameInput.classList.remove('tech-invalid-border');
-            usernameWarning.style.display = 'none';
 
             if (!emailInput.value.trim() || !emailInput.checkValidity()) {
                 emailInput.classList.add('tech-invalid-border');
@@ -252,10 +250,43 @@
             emailInput.classList.remove('tech-invalid-border');
             emailWarning.style.display = 'none';
 
-            step1.style.display = 'none';
-            step2.style.display = 'none';
-            step3.style.display = 'block';
-            validatePasswordCriteria(); // Run checks instantly upon opening
+            // ASYNC LIVE DATABASE CHECK
+            const username = usernameInput.value.trim();
+            
+            // Set up visual processing layout info indicators
+            usernameWarning.style.display = 'block';
+            usernameWarning.style.color = '#06B6D4'; 
+            usernameWarning.textContent = "Checking system registry verification fields...";
+
+            // Send standard query to the backend without reloading or losing input data
+            fetch(`/check-username/?username=${encodeURIComponent(username)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.is_taken) {
+                        // Halt process loops, display error, and keep entered info completely safe
+                        usernameInput.classList.add('tech-invalid-border');
+                        usernameWarning.style.color = '#EF4444'; 
+                        usernameWarning.textContent = "This username is already taken, please create a new one.";
+                        usernameInput.focus();
+                    } else {
+                        // Clear syntax markers and safely advance to password configurations panel
+                        usernameInput.classList.remove('tech-invalid-border');
+                        usernameWarning.style.display = 'none';
+                        
+                        step1.style.display = 'none';
+                        step2.style.display = 'none';
+                        step3.style.display = 'block';
+                        validatePasswordCriteria(); 
+                    }
+                })
+                .catch(err => {
+                    console.error("Verification endpoint pipeline error:", err);
+                    // Safe fallback transition trace
+                    step1.style.display = 'none';
+                    step2.style.display = 'none';
+                    step3.style.display = 'block';
+                    validatePasswordCriteria();
+                });
         }
     }
 
@@ -271,7 +302,6 @@
         const val = passInput.value;
         const confirmVal = confirmInput.value;
 
-        // Condition A: Minimum 6 Characters
         let hasLength = val.length >= 6;
         if (hasLength) {
             ruleLength.innerHTML = '&#10003; Minimum 6 characters';
@@ -281,7 +311,6 @@
             ruleLength.className = 'small text-danger fw-bold';
         }
 
-        // Condition B: Contains a digit
         let hasNumber = /\d/.test(val);
         if (hasNumber) {
             ruleNumber.innerHTML = '&#10003; Contains at least 1 number';
@@ -291,7 +320,6 @@
             ruleNumber.className = 'small text-danger fw-bold';
         }
 
-        // Condition C: Match passwords together
         let passwordsMatch = val === confirmVal && confirmVal.length > 0;
         if (confirmVal.length > 0 && val !== confirmVal) {
             matchWarning.style.display = 'block';
@@ -301,7 +329,6 @@
             confirmInput.classList.remove('tech-invalid-border');
         }
 
-        // Unlock Action Submit Button only if all rules pass perfectly
         if (hasLength && hasNumber && passwordsMatch) {
             submitBtn.removeAttribute('disabled');
             submitBtn.style.opacity = '1';
@@ -316,7 +343,6 @@
     function validateAndSubmitRegistration() {
         const registerForm = document.getElementById('registerForm');
 
-        // Final appending layer for backend processing configurations
         const hiddenSubmit = document.createElement('input');
         hiddenSubmit.type = 'hidden';
         hiddenSubmit.name = 'submit_register';
@@ -326,7 +352,6 @@
         registerForm.submit();
     }
 
-    // Keep state focus layouts clean upon refresh handling loops
     const urlParams = new URLSearchParams(window.location.search);
     if ("{{ username_taken }}" === "True" || "{{ reg_error }}" === "True") {
         switchTab('register');

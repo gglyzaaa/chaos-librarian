@@ -30,4 +30,5 @@ urlpatterns = [
     
     path('update/<int:art_id>/', views.update_artifact, name='update_artifact'),
     path('delete/<int:art_id>/', views.delete_artifact, name='delete_artifact'),
+    path('check-username/', views.check_username_availability, name='check_username'),
 ]

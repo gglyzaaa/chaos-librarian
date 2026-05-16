@@ -123,3 +123,11 @@ def delete_artifact(request, art_id):
     artifact = get_object_or_404(Artifact, id=art_id, owner=request.user)
     artifact.delete()
     return redirect('home')
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+
+def check_username_availability(request):
+    username = request.GET.get('username', '').strip()
+    # Check if a user with this username already exists in your database
+    is_taken = User.objects.filter(username__iexact=username).exists() if username else False
+    return JsonResponse({'is_taken': is_taken})
